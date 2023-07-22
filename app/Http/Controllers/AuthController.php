@@ -23,31 +23,30 @@ class AuthController extends Controller
         }
     }
 
-
     public function register(Request $request)
-{
-    $validatedData = $request->validate([
-        'first_name' => 'required',
-        'last_name' => 'required',
-        'email' => 'required|email',
-        'password' => 'required|min:6',
-    ]);
+    {
+        $validatedData = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+        ]);
 
-    $user = User::where('email', $validatedData['email'])->first();
+        $user = User::where('email', $validatedData['email'])->first();
 
-    if ($user) {
-        return response()->json(['message' => 'Error, el usuario ya existe'], 422);
+        if ($user) {
+            return response()->json(['message' => 'Error, el usuario ya existe'], 422);
+        }
+
+        $user = User::create([
+            'first_name' => $validatedData['first_name'],
+            'last_name' => $validatedData['last_name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password']),
+        ]);
+
+        return response()->json(['message' => 'Usuario registrado exitosamente'], 201);
     }
-
-    $user = User::create([
-        'first_name' => $validatedData['first_name'],
-        'last_name' => $validatedData['last_name'],
-        'email' => $validatedData['email'],
-        'password' => Hash::make($validatedData['password']),
-    ]);
-
-    return response()->json(['message' => 'Usuario registrado exitosamente'], 201);
-}
 
     public function logout(Request $request)
     {
@@ -62,7 +61,4 @@ class AuthController extends Controller
             return response()->json(['message' => 'No se encontró ningún usuario autenticado'], 401);
         }
     }
-
-
-
 }

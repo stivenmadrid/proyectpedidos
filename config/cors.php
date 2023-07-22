@@ -31,11 +31,8 @@ return [
 
     'supports_credentials' => false,
 
-
-    
     'allowed_origins' => [
         'http://192.168.209.143:8080', // Reemplaza con la URL de tu frontend de Vue.js
     ],
-    
 
 ];

@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 class Mesa extends Model
 {
     use HasFactory;
+
     protected $table = 'mesas';
 
     protected $fillable = ['nombre', 'capacidad', 'Estado', 'Descripcion'];
 
-    public function pedidos(){
+    public function pedidos()
+    {
         return $this->hasMany(Pedido::class);
     }
 }

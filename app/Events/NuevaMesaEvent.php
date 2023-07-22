@@ -3,10 +3,10 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 class NuevaMesaEvent implements ShouldBroadcast
 {
@@ -17,7 +17,6 @@ class NuevaMesaEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
-     * @param  array  $mesa
      * @return void
      */
     public function __construct(array $mesa)
@@ -47,4 +46,3 @@ class NuevaMesaEvent implements ShouldBroadcast
         ];
     }
 }
-

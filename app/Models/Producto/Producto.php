@@ -4,7 +4,6 @@ namespace App\Models\Producto;
 
 use App\Models\Categoria\categoria;
 use App\Models\Pedido\Pedido;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

@@ -13,13 +13,13 @@ class PagoController extends Controller
     {
         try {
             $pedidoId = $request->input('pedidoId');
-    
+
             // Verificar si ya existe un pago asociado al pedido
             $existePago = Pago::where('pedido_id', $pedidoId)->exists();
             if ($existePago) {
                 return response()->json(['error' => 'Ya existe un pago asociado a este pedido'], 400);
             }
-    
+
             $pago = new Pago();
             $pago->pedido_id = $pedidoId;
             $pago->monto = $request->monto;
@@ -27,14 +27,14 @@ class PagoController extends Controller
             $pago->created_at = now();
             $pago->updated_at = now();
             $pago->save();
-    
+
             // Obtener el pedido asociado al pago
             $pedido = Pedido::find($pedidoId);
             if ($pedido) {
                 // Actualizar el estado del pedido a "Pago"
                 $pedido->estado = 'Pago';
                 $pedido->save();
-    
+
                 // Actualizar el estado de la mesa a "Libre"
                 $mesa = $pedido->mesa;
                 if ($mesa) {
@@ -42,21 +42,20 @@ class PagoController extends Controller
                     $mesa->save();
                 }
             }
-    
+
             return response()->json(['message' => 'Pago generado con éxito y estado del pedido actualizado']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al generar el pago', 'message' => $e->getMessage()], 500);
         }
     }
-    
-    public function PagosGenerados(){
-        $pedidos = Pedido::with(['mesa', 'productos'])
-        ->orderBy('id', 'desc')
-        ->where('estado','=','Pago')
-        ->get();
-    
-    return response()->json($pedidos, 200);
-    }
-     
 
+    public function PagosGenerados()
+    {
+        $pedidos = Pedido::with(['mesa', 'productos'])
+            ->orderBy('id', 'desc')
+            ->where('estado', '=', 'Pago')
+            ->get();
+
+        return response()->json($pedidos, 200);
     }
+}

@@ -72,7 +72,6 @@ return [
 
     'timezone' => 'America/Bogota',
 
-
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

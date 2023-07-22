@@ -14,6 +14,7 @@ class UserController extends Controller
     public function index()
     {
         $user = User::all();
+
         return response()->json($user);
 
     }
@@ -31,7 +32,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-    
+
         $inputs = $request->input();
         $inputs['password'] = Hash::make(trim($request->input('password')));
 
@@ -40,7 +41,7 @@ class UserController extends Controller
 
         if ($existingUser) {
             return response()->json([
-                'mensaje' => 'El usuario ya existe en la base de datos'
+                'mensaje' => 'El usuario ya existe en la base de datos',
             ]);
         }
 
@@ -48,10 +49,9 @@ class UserController extends Controller
 
         return response()->json([
             'data' => $user,
-            'mensaje' => 'Usuario registrado con éxito'
+            'mensaje' => 'Usuario registrado con éxito',
         ]);
     }
-    
 
     /**
      * Display the specified resource.
