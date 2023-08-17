@@ -4,6 +4,7 @@ namespace App\Models\Pedido;
 
 use App\Models\Mesa\Mesa;
 use App\Models\Producto\Producto;
+use App\Models\Adiciones\Adicion;
 use Illuminate\Database\Eloquent\Model;
 
 class Pedido extends Model
@@ -20,7 +21,7 @@ class Pedido extends Model
     public function productos()
     {
         return $this->belongsToMany(Producto::class, 'pedido_productos')
-            ->withPivot('cantidad', 'observacion')
+            ->withPivot('cantidad', 'observacion', 'cocina')
             ->withTimestamps();
     }
 
@@ -28,4 +29,11 @@ class Pedido extends Model
     {
         return $this->hasMany(Pago::class);
     }
+     // Relación con Adiciones (relación one-to-many)
+     public function adiciones()
+     {
+         return $this->hasMany(Adicion::class);
+     }
+
+     
 }

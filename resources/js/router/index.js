@@ -9,7 +9,9 @@ import categoriaList from '../views/Categorias/categoriaList.vue';
 import ProductosList from '../views/Productos/ProductosList.vue';
 import pagos from '../views/PagosGenerados/pagos.vue';
 import pagosVue from '../views/PagosGenerados/pagos.vue';
-
+import usuarios from '../views/Administracion/usuarios.vue';
+import RolesYPermisos from '../views/Administracion/RolesYPermisos.vue';
+import indicadores from '../views/Indicadores/indicadores.vue';
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -18,6 +20,7 @@ const router = createRouter({
       name: 'loginautenticate',
       component: loginautenticate,
     },
+   
     {
       path: '/',
       name: 'home',
@@ -82,6 +85,33 @@ const router = createRouter({
         requiresAuth: true, // Requiere autenticación en esta ruta
       },
     },
+    {
+      path: '/usuarios',
+      name: 'users',
+      component: usuarios,
+      meta: {
+        requiresAuth: true, // Requiere autenticación en esta ruta
+      },
+    },
+    {
+      path: '/Roles',
+      name: 'roles',
+      component: RolesYPermisos,
+      meta: {
+        requiresAuth: true, // Requiere autenticación en esta ruta
+      },
+    },
+    
+    {
+      path: '/Indicadores',
+      name: 'Indicador',
+      component: indicadores,
+      meta: {
+        requiresAuth: true, // Requiere autenticación en esta ruta
+      },
+    },
+   
+   
   ]
 })
 

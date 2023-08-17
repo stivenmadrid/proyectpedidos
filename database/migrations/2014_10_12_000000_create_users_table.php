@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
 
-            $table->string('first_name', 191); // Ajustar la longitud a 191 bytes
-            $table->string('last_name', 191); // Ajustar la longitud a 191 bytes
+            $table->string('name', 191); // Ajustar la longitud a 191 bytes
             $table->string('email', 191)->unique(); // Ajustar la longitud a 191 bytes
             $table->string('password');
+            
             $table->timestamps();
         });
     }

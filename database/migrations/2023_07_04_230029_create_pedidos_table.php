@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('mesa_id')->nullable();
             $table->foreign('mesa_id')->references('id')->on('mesas')->onDelete('cascade');
             $table->string('estado', 191); // Ajustar la longitud a 191 bytes
-            $table->string('cliente', 191); // Ajustar la longitud a 191 bytes
+            $table->string('cliente', 191)->nullable(); // Ajustar la longitud a 191 bytes
             $table->decimal('total', 8, 2);
             $table->timestamps();
         });

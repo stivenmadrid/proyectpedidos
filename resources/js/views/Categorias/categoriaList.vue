@@ -1,24 +1,53 @@
+
+
 <template>
-  <div class="container-fluid vh-100" style="overflow-y: auto; max-height: 100vh">
-    <br />
-    <button @click="abrirModal" class="btn btn-success">Agregar Categoría</button>
-
-    <h3 class="title">Listado de categorías</h3>
-
-    <div class="table-responsive">
-      <table class="table table-striped" ref="dataTable">
-        <thead class="table-dark">
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Nombre de la Categoría</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="table-group-divider" id="contenidocategorias"></tbody>
-      </table>
-    </div>
+  <div class="container-fluid" >
+      <div class="row">
+          <div class="col-sm-12" id="tabla-container">
+              <div class="container mt-4">
+                  <h1>Categorias</h1>
+                  <button @click="abrirModal" class="btn btn-primary">Agregar Categoría</button>
+                   <!-- Campo de búsqueda -->
+        <div class="row justify-content-center mb-3">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <input v-model="busqueda" @input="filtrarCategorias" type="text" class="form-control" placeholder="Buscar categoría">
+                </div>
+              </div>
+            </div>
+              </div>
+  
+              <div class="table-responsive">
+                  <table class="table " id="userTable">
+                      <thead>
+                        <tr class="table-dark">
+                          <th scope="col">#</th>
+                          <th scope="col">Nombre de la Categoría</th>
+                          <th scope="col">Acciones</th>
+                        </tr>
+                      </thead>
+                    
+                <tbody class="table-group-divider" id="contenidocategorias">
+                    <tr v-for="categoria in categorias" :key="categoria.id">
+                      <td>{{ categoria.id }}</td>
+                      <td>{{ categoria.Nombre_Categoria }}</td>
+                      <td>
+                        <button @click="abrirModalEdicion(categoria)" class="btn btn-primary">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button @click="eliminarCategoria(categoria.id)" class="btn btn-danger">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </td>
+                    </tr>
+                </tbody>
+                  </table>
+              </div>
+          </div>
+      </div>
   </div>
-
+   <!-- Agregar la paginación -->
+    
   <!-- Modal para agregar categoría -->
   <div class="modal" :class="{ 'is-active': mostrarModal }">
     <div class="modal-background"></div>
@@ -82,250 +111,243 @@
       </div>
     </div>
   </div>
+  
 </template>
-
-<script>
-import axios from 'axios'
-import $ from 'jquery'
-import 'datatables.net'
-import 'datatables.net-dt/css/jquery.dataTables.css'
-import 'datatables.net-responsive-dt/css/responsive.dataTables.css'
-
-export default {
-  data() {
-    return {
-      categorias: [],
-      mostrarModal: false,
-      mostrarModalEdicion: false,
-      nuevaCategoria: {
-        Nombre_Categoria: ''
-      },
-      categoriaSeleccionada: {
-        id: '',
-        Nombre_Categoria: ''
-      },
-      dataTable: null
-    }
-  },
-  mounted() {
-    this.getCategorias()
-  },
-  methods: {
-    getCategorias() {
-      const token = localStorage.getItem('token')
-
-      axios
-        .get('http://127.0.0.1:8000/api/v1/categorias', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        })
-        .then((response) => {
-          this.categorias = response.data
-          this.initializeDataTable()
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    },
-    abrirModal() {
-      this.mostrarModal = true
-    },
-    cancelarCreacion() {
-      this.cerrarModal()
-    },
-    cerrarModal() {
-      this.mostrarModal = false
-      this.resetForm()
-    },
-    resetForm() {
-      this.nuevaCategoria = {
-        Nombre_Categoria: ''
+  <script>
+  import axios from 'axios'
+  import $ from 'jquery'
+  import 'datatables.net'
+  import 'datatables.net-dt/css/jquery.dataTables.css'
+  import 'datatables.net-responsive-dt/css/responsive.dataTables.css'
+  
+  export default {
+    data() {
+      return {
+        categorias: [],
+        mostrarModal: false,
+        mostrarModalEdicion: false,
+        nuevaCategoria: {
+          Nombre_Categoria: ''
+        },
+        categoriaSeleccionada: {
+          id: '',
+          Nombre_Categoria: ''
+        },
+        dataTable: null
       }
     },
-    crearCategoria() {
-      const token = localStorage.getItem('token')
-
-      axios
-        .post('http://127.0.0.1:8000/api/v1/categorias/store', this.nuevaCategoria, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        })
-        .then((response) => {
-          this.$swal({
-            title: 'Éxito!',
-            text: response.data.message,
-            icon: 'success'
-          })
-          this.getCategorias()
-          this.cerrarModal()
-        })
-        .catch((error) => {
-          let errorMessage = 'Error al realizar la solicitud al servidor'
-          if (error.response) {
-            errorMessage = error.response.data.message || 'Error al crear la categoría'
-          } else if (error.request) {
-            errorMessage = 'No se recibió respuesta del servidor'
-          }
-          this.$swal({
-            title: 'Error!',
-            text: errorMessage,
-            icon: 'error'
-          })
-          console.error('Error al crear la categoría:', error)
-        })
+    mounted() {
+      this.getCategorias()
     },
-    eliminarCategoria(id) {
-      const token = localStorage.getItem('token')
-
-      axios
-        .delete(`http://127.0.0.1:8000/api/v1/categorias/destroy/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        })
-        .then((response) => {
-          this.$swal({
-            title: 'Éxito!',
-            text: response.data.message,
-            icon: 'success'
-          })
-          this.getCategorias()
-        })
-        .catch((error) => {
-          let errorMessage = 'Error al realizar la solicitud al servidor'
-          if (error.response) {
-            errorMessage = error.response.data.message || 'Error al eliminar la categoría'
-          } else if (error.request) {
-            errorMessage = 'No se recibió respuesta del servidor'
-          }
-          this.$swal({
-            title: 'Error!',
-            text: errorMessage,
-            icon: 'error'
-          })
-          console.error('Error al eliminar la categoría:', error)
-        })
-    },
-    abrirModalEdicion(categoria) {
-      this.categoriaSeleccionada = { ...categoria }
-      this.mostrarModalEdicion = true
-    },
-    cancelarEdicion() {
-      this.mostrarModalEdicion = false
-      this.resetForm()
-    },
-    editarCategoria() {
-      const token = localStorage.getItem('token')
-
-      axios
-        .put(
-          `http://127.0.0.1:8000/api/v1/categorias/update/${this.categoriaSeleccionada.id}`,
-          this.categoriaSeleccionada,
-          {
+    methods: {
+      getCategorias() {
+        const token = localStorage.getItem('token')
+  
+        axios
+          .get('/api/v1/categorias', {
             headers: {
               Authorization: `Bearer ${token}`
             }
-          }
-        )
-        .then((response) => {
-          this.$swal({
-            title: 'Éxito!',
-            text: response.data.message,
-            icon: 'success'
           })
-          this.getCategorias()
-          this.mostrarModalEdicion = false
-        })
-        .catch((error) => {
-          let errorMessage = 'Error al realizar la solicitud al servidor'
-          if (error.response) {
-            errorMessage = error.response.data.message || 'Error al editar la categoría'
-          } else if (error.request) {
-            errorMessage = 'No se recibió respuesta del servidor'
-          }
-          this.$swal({
-            title: 'Error!',
-            text: errorMessage,
-            icon: 'error'
+          .then((response) => {
+            this.categorias = response.data
+            this.initializeDataTable()
           })
-          console.error('Error al editar la categoría:', error)
-        })
-    },
-    initializeDataTable() {
-      if (this.dataTable) {
-        this.dataTable.destroy()
-      }
-
-      this.dataTable = $(this.$refs.dataTable).DataTable({
-        data: this.categorias,
-        columns: [
-          { data: 'id' },
-          { data: 'Nombre_Categoria' },
-          { data: null, orderable: false, searchable: false }
-        ],
-        columnDefs: [
-          {
-            targets: 2,
-            createdCell: (cell, cellData, rowData, rowIndex, colIndex) => {
-              const editarButton = $(
-                '<button class="btn btn-primary"><i class="fas fa-edit"></i> </button>'
-              )
-              editarButton.on('click', () => {
-                this.abrirModalEdicion(rowData)
-              })
-              $(cell).empty().append(editarButton)
-
-              const eliminarButton = $(
-                '<button class="btn btn-danger"><i class="fas fa-trash"></i></button>'
-              )
-              eliminarButton.on('click', () => {
-                this.eliminarCategoria(rowData.id)
-              })
-              $(cell).append(eliminarButton)
-            }
-          }
-        ],
-        language: {
-          search: 'Buscar:',
-          lengthMenu: 'Mostrar _MENU_ registros por página',
-          zeroRecords: 'No se encontraron registros',
-          info: 'Mostrando página _PAGE_ de _PAGES_',
-          infoEmpty: 'No hay registros disponibles',
-          infoFiltered: '(filtrados de _MAX_ registros totales)',
-          paginate: {
-            first: 'Primero',
-            last: 'Último',
-            next: 'Siguiente',
-            previous: 'Anterior'
-          }
+          .catch((error) => {
+            console.log(error)
+          })
+      },
+      abrirModal() {
+        this.mostrarModal = true
+      },
+      cancelarCreacion() {
+        this.cerrarModal()
+      },
+      cerrarModal() {
+        this.mostrarModal = false
+        this.resetForm()
+      },
+      resetForm() {
+        this.nuevaCategoria = {
+          Nombre_Categoria: ''
         }
-      })
+      },
+      crearCategoria() {
+        const token = localStorage.getItem('token')
+  
+        axios
+          .post('/api/v1/categorias/store', this.nuevaCategoria, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+          .then((response) => {
+            this.$swal({
+              title: 'Éxito!',
+              text: response.data.message,
+              icon: 'success'
+            })
+            this.getCategorias()
+            this.cerrarModal()
+          })
+          .catch((error) => {
+            let errorMessage = 'Error al realizar la solicitud al servidor'
+            if (error.response) {
+              errorMessage = error.response.data.message || 'Error al crear la categoría'
+            } else if (error.request) {
+              errorMessage = 'No se recibió respuesta del servidor'
+            }
+            this.$swal({
+              title: 'Error!',
+              text: errorMessage,
+              icon: 'error'
+            })
+            console.error('Error al crear la categoría:', error)
+          })
+      },
+      eliminarCategoria(id) {
+        const token = localStorage.getItem('token')
+  
+        axios
+          .delete(`/api/v1/categorias/destroy/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+          .then((response) => {
+            this.$swal({
+              title: 'Éxito!',
+              text: response.data.message,
+              icon: 'success'
+            })
+            this.getCategorias()
+          })
+          .catch((error) => {
+            let errorMessage = 'Error al realizar la solicitud al servidor'
+            if (error.response) {
+              errorMessage = error.response.data.message || 'Error al eliminar la categoría'
+            } else if (error.request) {
+              errorMessage = 'No se recibió respuesta del servidor'
+            }
+            this.$swal({
+              title: 'Error!',
+              text: errorMessage,
+              icon: 'error'
+            })
+            console.error('Error al eliminar la categoría:', error)
+          })
+      },
+      abrirModalEdicion(categoria) {
+        this.categoriaSeleccionada = { ...categoria }
+        this.mostrarModalEdicion = true
+      },
+      cancelarEdicion() {
+        this.mostrarModalEdicion = false
+        this.resetForm()
+      },
+      editarCategoria() {
+        const token = localStorage.getItem('token')
+  
+        axios
+          .put(
+            `/api/v1/categorias/update/${this.categoriaSeleccionada.id}`,
+            this.categoriaSeleccionada,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          )
+          .then((response) => {
+            this.$swal({
+              title: 'Éxito!',
+              text: response.data.message,
+              icon: 'success'
+            })
+            this.getCategorias()
+            this.mostrarModalEdicion = false
+          })
+          .catch((error) => {
+            let errorMessage = 'Error al realizar la solicitud al servidor'
+            if (error.response) {
+              errorMessage = error.response.data.message || 'Error al editar la categoría'
+            } else if (error.request) {
+              errorMessage = 'No se recibió respuesta del servidor'
+            }
+            this.$swal({
+              title: 'Error!',
+              text: errorMessage,
+              icon: 'error'
+            })
+            console.error('Error al editar la categoría:', error)
+          })
+      },
+      
+      // Nueva función para filtrar las mesas según el término de búsqueda
+      filtrarCategorias() {
+      const textoBusqueda = this.busqueda.toLowerCase();
+      this.categorias = this.categorias.filter((categoria) => {
+        return categoria.Nombre_Categoria.toLowerCase().includes(textoBusqueda);
+      });
+    }
+      
     }
   }
-}
-</script>
-
-<!-- <style scoped>
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
+  </script>
+  
+  
+  <style>
+  .btn-estado {
+      width: 150px;
+      /* ajustar el ancho según sus necesidades */
   }
   
+  /* Estilos para la sección del gráfico */
+  #grafico-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100px;
+      width: 100%;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+  }
+  
+  /* Estilos para el contenedor de la tabla */
+  #tabla-container {
+      padding: 20px;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+  }
+  
+  /* Estilos para la tabla */
+  #userTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+  }
+  
+  #userTable th,
+  #userTable td {
+      border: 1px solid #ced4da;
+      padding: 8px;
+      text-align: center;
+  }
+  
+  #userTable th {
+      background-color: #007bff;
+      color: #fff;
+  }
+  
+  #userTable tr:hover {
+      background-color: #f1f1f1;
+  }
   .modal.is-active {
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 1;
   }
-  
   .modal-background {
     position: fixed;
     top: 0;
@@ -334,15 +356,18 @@ export default {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
   }
-  
   .modal-content {
     background-color: #fefefe;
     padding: 20px;
     max-width: 500px;
     margin: 0 auto;
     border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
   }
-  
+  .modal-content:hover {
+    transform: scale(1.02);
+  }
   .modal-close {
     position: absolute;
     top: 10px;
@@ -351,267 +376,6 @@ export default {
     font-size: 24px;
     cursor: pointer;
   }
-
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #EDE7F6;
-  padding: 0 20px;
-  font-family: 'Roboto', sans-serif;
-}
-
-.card {
-  position: relative;
-  max-width: 1200px;
-  width: 100%;
-  background: #FFFFFF;
-  border-radius: 4px;
-  padding: 40px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  animation: fade-in-card 0.5s ease-out;
-}
-
-@keyframes fade-in-card {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.title {
-  color: #3F51B5;
-  text-align: left;
-  font-size: 2em;
-  font-weight: 500;
-  margin-bottom: 30px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 15px;
-}
-
-.table thead th {
-  color: #FFFFFF;
-  background-color: #3F51B5;
-  padding: 15px 20px;
-  border: none;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-.table tbody tr {
-  background-color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border-radius: 4px;
-  animation: fade-in-row 0.5s ease-out;
-}
-
-@keyframes fade-in-row {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.table tbody tr:hover {
-  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
-}
-
-.table tbody tr td {
-  padding: 15px 20px;
-  vertical-align: middle;
-}
-
-.estado-nuevo {
-  display: inline-block;
-  padding: 3px 10px;
-  color: white;
-  background-color: #4CAF50;
-  border-radius: 16px;
-  font-weight: 500;
-  font-size: 0.8em;
-}
-
-.btn {
-  display: inline-block;
-  background-color: #3F51B5;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 4px;
-  text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  transition: background-color 0.3s, box-shadow 0.3s;
-}
-
-.btn:hover {
-  background-color: #303F9F;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
-}
-
-  </style> -->
-
-<style scoped>
-.container-fluid {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-image: url('https://img.freepik.com/fotos-premium/patron-marmol-natural-fondo_1258-22162.jpg');
-  background-repeat: repeat;
-  background-size: cover;
-  background-position: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding-bottom: 20px;
-}
-
-.title {
-  font-size: 56px;
-  font-weight: bold;
-  color: white;
-  border-radius: 30px;
-  margin-bottom: 20px;
-  animation: slideInUp 1s ease;
-  -webkit-text-stroke: 2px orangered;
-  color: white;
-  text-align: center;
-}
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th,
-.table td {
-  padding: 15px;
-  text-align: center;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.table th {
-  background-color: #343a40;
-  color: white;
-}
-
-.table tbody tr:hover {
-  background-color: #f8f9fa;
-}
-
-.table tbody td table {
-  width: 100%;
-}
-
-.table tbody td table td {
-  border: none;
-}
-
-.btn {
-  margin-right: 10px;
-  padding: 10px 20px;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  background-color: #007bff;
-  color: white;
-}
-
-.btn:hover {
-  background-color: #0056b3;
-}
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-  transition: opacity 0.3s ease;
-}
-.modal.is-active {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 1;
-}
-
-.modal-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  background-color: #fefefe;
-  padding: 20px;
-  max-width: 500px;
-  margin: 0 auto;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-}
-
-.modal-content:hover {
-  transform: scale(1.02);
-}
-
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  color: #aaa;
-  font-size: 24px;
-  cursor: pointer;
-}
-.title {
-  font-size: 3em;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-family: 'Arial', sans-serif;
-  padding-bottom: 10px;
-  margin-bottom: 30px;
-  text-align: center;
-  color: #537895;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  position: relative;
-}
-
-.title::before,
-.title::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  height: 4px;
-  background: linear-gradient(to right, #ffd700, #537895);
-  animation: lineAnimation 2s linear infinite;
-}
-
-.title::before {
-  left: 0;
-  width: 30%;
-}
-
-.title::after {
-  right: 0;
-  width: 40%;
-}
-
-@keyframes lineAnimation {
-  0% {
-    transform: scaleX(0);
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
-</style>
+  
+  </style>
+  

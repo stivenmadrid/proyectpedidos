@@ -9,6 +9,9 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'bootstrap/dist/js/bootstrap';
+import 'bootstrap/dist/css/bootstrap.css';
+
+
 
 // Configurar Laravel Echo
 window.Pusher = Pusher;

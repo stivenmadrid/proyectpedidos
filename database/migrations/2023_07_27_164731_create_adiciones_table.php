@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pedido_productos', function (Blueprint $table) {
+        Schema::create('adiciones', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('pedido_id');
-            $table->unsignedBigInteger('producto_id');
             $table->integer('cantidad');
-            $table->boolean('cocina')->default(false); // Agregar la columna para indicar si va a cocina o no
-            $table->foreign('pedido_id')->references('id')->on('pedidos');
-            $table->foreign('producto_id')->references('id')->on('productos');
+            $table->boolean('cocina')->default(true);
+            $table->string('observacion')->nullable(); // Esta columna debe estar presente
+            // Agrega aquí los campos adicionales que necesites para la adición
             $table->timestamps();
+
+            $table->foreign('pedido_id')->references('id')->on('pedidos');
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pedido_productos');
+        Schema::dropIfExists('adiciones');
     }
 };

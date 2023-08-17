@@ -1,16 +1,23 @@
 <template>
-  <div class="home">
+  <div class="home" >
     <div class="content">
-      <h1 class="title">¡Bienvenido al Sistema de Pedidos!</h1>
-      <p>
+      <h1 class="titles">¡Bienvenido al Sistema de Pedidos!</h1>
+      <!-- <p>
         Aquí podrás administrar las mesas, realizar pedidos y gestionar tu restaurante de manera
         eficiente.
-      </p>
+      </p> -->
     </div>
     <div class="image-container">
       <div class="overlay"></div>
       <img src="https://i.ytimg.com/vi/jUkW0_4SDw8/maxresdefault.jpg" alt="Restaurant Image" />
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>Todos los derechos reservados © 2023 Tecnobyte360°. <a href="https://www.tecnobyte360.com">Visita nuestra página web</a></p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -19,22 +26,10 @@ export default {
   // Puedes agregar lógica adicional si es necesario
 }
 </script>
+
 <style>
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-.navbar {
-  padding: 10px; /* Reduce el padding para pantallas pequeñas */
-}
-.navbar-brand {
-  font-size: 24px;
-}
-.navbar-nav .nav-link {
-  font-size: 16px; /* Reduce el tamaño de fuente para pantallas pequeñas */
-}
+
+
 /* Estilos para el contenido */
 .container {
   max-width: 1200px; /* Ajusta el ancho del contenido para pantallas grandes */
@@ -45,7 +40,6 @@ body {
   .navbar-brand {
     font-size: 20px;
   }
-
   .navbar-nav .nav-link {
     font-size: 14px;
   }
@@ -68,10 +62,10 @@ body {
   margin-bottom: 40px;
 }
 
-.title {
+.titles {
+  color: white;
   font-size: 56px;
   font-weight: bold;
-  color: #fff;
   margin-bottom: 20px;
   animation: slideInUp 1s ease;
 }
@@ -83,29 +77,10 @@ body {
   animation: slideInUp 1s ease;
 }
 
-.btn {
-  display: inline-block;
-  padding: 16px 32px;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  color: #fff;
-  background-color: #ff3366;
-  border-radius: 50px;
-  transition: background-color 0.3s ease;
-  animation: pulse 1s infinite;
-}
-
-.btn:hover {
-  background-color: #ff6699;
-}
-
 .image-container {
   position: relative;
   max-width: 800px;
   width: 100%;
-  height: auto;
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -146,18 +121,6 @@ body {
   }
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 @keyframes fadeIn {
   0% {
     opacity: 0;
@@ -165,5 +128,25 @@ body {
   100% {
     opacity: 1;
   }
+}
+
+/* Estilos para el footer */
+.footer {
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  margin-top: 50px;
+  border-top: 1px solid #666; /* Agrega un borde superior */
+  box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.2); /* Agrega una sombra en la parte inferior */
+}
+
+.footer a {
+  color: #ff3366; /* Cambia el color del enlace */
+  text-decoration: none; /* Quita la subrayado por defecto */
+  transition: color 0.3s; /* Agrega una transición suave al color del enlace al pasar el mouse */
+}
+
+.footer a:hover {
+  color: #ff6699; /* Cambia el color del enlace al pasar el mouse por encima */
 }
 </style>

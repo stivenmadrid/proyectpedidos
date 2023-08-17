@@ -4,6 +4,7 @@ namespace App\Models\Producto;
 
 use App\Models\Categoria\categoria;
 use App\Models\Pedido\Pedido;
+use App\Models\Adiciones\Adicion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,7 +22,15 @@ class Producto extends Model
     public function pedidos()
     {
         return $this->belongsToMany(Pedido::class, 'pedido_productos')
-            ->withPivot('cantidad')
+            ->withPivot('cantidad', 'observacion', 'cocina')
             ->withTimestamps();
+    }
+    
+    
+    
+    public function adiciones()
+    {
+        return $this->belongsToMany(Adicion::class, 'adicion_productos')
+            ->withPivot('cantidad');
     }
 }

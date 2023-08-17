@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Productos;
 
 use App\Http\Controllers\Controller;
+use App\Models\Categoria\categoria;
 use App\Models\Producto\Producto;
+
 use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,6 +20,24 @@ class ProductosController extends Controller
         return response()->json($productos, 200);
     }
 
+
+  // Add this method in ProductosController
+  public function getByCategory(Request $request, $categoryId)
+  {
+      // Find the category by its ID
+      $category = categoria::find($categoryId);
+
+      if (!$category) {
+          return response()->json(['message' => 'Category not found'], 404);
+      }
+
+      // Retrieve the products associated with the category
+      $productos = $category->productos;
+
+      return response()->json($productos, 200);
+  }
+
+    
     public function store(Request $request)
     {
         try {

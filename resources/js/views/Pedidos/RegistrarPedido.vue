@@ -1,284 +1,365 @@
 <template>
-  <div class="containers">
-    <h1 class="title">REGISTRAR PEDIDOS</h1>
-    <div class="flex-container">
-      <div class="card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Crear Pedido sin Mesa</h5>
-          <p class="card-text">
-            Haz clic en el siguiente botón para crear un pedido sin asignar a una mesa.
-          </p>
-          <button class="btn btn-primary" @click="abrirModalSinMesa">Crear Pedido</button>
+  <div class="container-fluid" style="background-image: url('https://www.arcosdorados.com/wp-content/uploads/2021/07/Grand-Tasty-1-e1627506211463.jpg'); background-size: cover; background-repeat: no-repeat;">
+     
+        <br>
+        <div class="row">
+
+            <!-- Lado izquierdo: Mesas -->
+            <div class="col-md-12 mb-1">
+                <div class="row">
+                    <br>
+                    <div class="col-md-6 mb-1">
+                        <div class="card text-center">
+                            <button class="btn btn-primary btn-sm" @click="abrirModalSinMesa">Crear Pedido sin
+                                mesa</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-1">
+                        <div class="card text-center">
+            <button @click="abrirModalAdiciones" class="btn btn-primary">Adiciones</button>
+            </div>
+            </div>
         </div>
-      </div>
-
-      <div class="card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Crear Pedido con Mesa</h5>
-          <p class="card-text">
-            Haz clic en el siguiente botón para crear un pedido asignado a una mesa.
-          </p>
-          <button class="btn btn-primary" @click="abrirModalConMesa">Crear Pedido</button>
+          
+          
+   
+            <div class="row">
+                <div class="col-md-2 col-6  mb-1 mesa-item" v-for="mesa in mesas" :key="mesa.id"
+                    :class="{'mesa-ocupada': mesa.Estado === 'Ocupada', 'mesa-disponible': mesa.Estado === 'Libre'}">
+                    <div class="card mb-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Mesa {{ mesa.id }}</h5>
+                            <p class="card-text">Descripción: {{ mesa.Descripcion }}</p>
+                            <button class="btn btn-primary" @click="abrirModalConMesa(mesa.id)">Seleccionar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
+
+<!-- 
+        Modal para adiciones -->
+        <div v-if="showModalAdiciones" class="modal-backgroundn" @click="cerrarModalAdiciones">
+    <div class="modal-contentn" @click.stop>
+      <div class="modal-header">
+        <h5 class="modal-title" id="adicionesModalLabel">Agregar Adición</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-    </div>
-    <!-- Modal para pedidos con mesa -->
-    <div v-if="showModalConMesa" class="modal-background" @click="cerrarModalConMesa">
-      <div class="modal-content" @click.stop>
-        <h3 class="modal-title">Agregar Pedido con Mesa</h3>
-        <form @submit.prevent="crearPedidoConMesa">
-          <div class="field">
-            <label class="label">Mesa:</label>
-            <div class="control">
-              <select v-model="nuevoPedidoConMesa.mesa_id" required class="form-control">
-                <option value="" disabled selected>Seleccione una mesa</option>
-                <option v-for="mesa in mesas" :value="mesa.id">{{ mesa.nombre }}</option>
-              </select>
-            </div>
-          </div>
+      <div class="modal-body">
+       
+        <!-- Aquí se muestra una tabla con las adiciones -->
+        <table  class="table table-bordered">
+          <thead>
+            <tr>
+            <th>Categoria</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Cocina</th>
+              <th>Observación</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(adicion, index) in nuevoPedidoConMesa.productos" :key="index">
 
-          <div class="field">
-            <label class="label">Productos:</label>
-            <div class="control">
-              <div class="table-container">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Cantidad</th>
-                      <th>Observaciones</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(producto, index) in nuevoPedidoConMesa.productos" :key="index">
-                      <td>
-                        <select
-                          v-model="producto.id"
-                          @change="actualizarTotalConMesa"
-                          required
-                          class="form-control"
-                        >
-                          <option value="" disabled selected>Seleccione un producto</option>
-                          <option v-for="producto in productos" :value="producto.id">
-                            {{ producto.nombre }}
-                          </option>
-                        </select>
-                      </td>
-                      <td>
-                        <input
-                          v-model="producto.cantidad"
-                          class="form-control"
-                          type="number"
-                          placeholder="Cantidad"
-                          @input="actualizarTotalConMesa"
-                          required
-                        />
-                      </td>
-                      <td>
-                        <input
-                          v-model="producto.observaciones"
-                          class="form-control"
-                          type="text"
-                          placeholder="Observaciones"
-                        />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn btn-danger"
-                          @click="eliminarProductoConMesa(index)"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+                <td>
+                    <select >
+                        
+                    </select>
+                </td>
+                <td>
+                <select >
+                  <option v-for="producto in listaProductos" :key="producto.id" :value="producto.id">{{ producto.nombre }}</option>
+                </select>
+              </td>
+              <td>
+                <select v-model="adicion.producto_id"  class="form-control">
+                  <option v-for="producto in listaProductos" :key="producto.id" :value="producto.id">{{ producto.nombre }}</option>
+                </select>
+              </td>
+              <td>
+                <input type="number"  class="form-control" v-model="adicion.cantidad" />
+              </td>
+              <td>
+                <input type="checkbox"  v-model="adicion.cocina" />
+              </td>
+              <td>
+                <input type="text"  class="form-control" v-model="adicion.observacion" />
+              </td>
+              <td>
+              <!-- Ícono de papelera para eliminar la fila -->
+              <i class="fas fa-trash" @click="eliminarFilaAdicion(index)"></i>
+            </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="agregar-fila-icon" @click="agregarFilaAdicion">
+          <i class="fas fa-plus-circle"></i>
+        </div>
 
-          <div class="field">
-            <div class="control">
-              <button type="button" class="btn btn-primary" @click="agregarProductoConMesa">
-                Agregar Producto
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Total a pagar:</label>
-            <div class="control">
-              <input
-                v-model="nuevoPedidoConMesa.total"
-                class="form-control"
-                type="number"
-                disabled
-              />
-            </div>
-          </div>
-          <div class="field">
-            <div class="control">
-              <button type="submit" class="btn btn-secondary">Crear Pedido</button>
-              <button type="button" class="btn btn-secondary" @click="cerrarModalConMesa">
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </form>
       </div>
-    </div>
-
-    <!-- Modal para pedidos sin mesa -->
-    <div v-if="showModalSinMesa" class="modal-background" @click="cerrarModalSinMesa">
-      <div class="modal-content" @click.stop>
-        <h3 class="modal-title">Agregar Pedido sin Mesa</h3>
-        <form @submit.prevent="crearPedidoSinMesa">
-          <div class="field">
-            <label class="label">Cliente:</label>
-            <div class="control">
-              <input
-                v-model="nuevoPedidoSinMesa.cliente"
-                class="form-control"
-                type="text"
-                placeholder="Nombre del cliente"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="label">Productos:</label>
-            <div class="control">
-              <div class="table-container">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Cantidad</th>
-                      <th>Observaciones</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(producto, index) in nuevoPedidoSinMesa.productos" :key="index">
-                      <td>
-                        <select
-                          v-model="producto.id"
-                          @change="actualizarTotalSinMesa"
-                          required
-                          class="form-control"
-                        >
-                          <option value="" disabled selected>Seleccione un producto</option>
-                          <option v-for="producto in productos" :value="producto.id">
-                            {{ producto.nombre }}
-                          </option>
-                        </select>
-                      </td>
-                      <td>
-                        <input
-                          v-model="producto.cantidad"
-                          class="form-control"
-                          type="number"
-                          placeholder="Cantidad"
-                          @input="actualizarTotalSinMesa"
-                          required
-                        />
-                      </td>
-                      <td>
-                        <input
-                          v-model="producto.observaciones"
-                          class="form-control"
-                          type="text"
-                          placeholder="Observaciones"
-                        />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn btn-danger"
-                          @click="eliminarProductoSinMesa(index)"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <button type="button" class="btn btn-primary" @click="agregarProductoSinMesa">
-                Agregar Producto
-              </button>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Total a pagar:</label>
-            <div class="control">
-              <input
-                v-model="nuevoPedidoSinMesa.total"
-                class="form-control"
-                type="number"
-                disabled
-              />
-            </div>
-          </div>
-          <div class="field">
-            <div class="control">
-              <button type="submit" class="btn btn-secondary">Crear Pedido</button>
-              <button type="button" class="btn btn-secondary" @click="cerrarModalSinMesa">
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @click="cerrarModalAdiciones">Cerrar</button>
+        <!-- Llama a la función agregarAdicion al hacer clic en el botón "Guardar Adición" -->
+        <button type="button" class="btn btn-primary" @click="agregarAdicion">Guardar Adición</button>
       </div>
     </div>
   </div>
+
+</div>
+
+
+
+
+
+    <!-- Modal para ingresar datos del pedido con mesa -->
+    <div v-if="showModalConMesa" class="modal-backgroundn" @click="cerrarModalConMesa">
+      <div class="modal-contentn" @click.stop>
+        <h3 class="modal-title">Agregar Pedido con Mesa</h3>
+        <form @submit.prevent="crearPedidoConMesa" class="form">
+          <div class="field">
+            <!-- Mostrar los detalles de la mesa seleccionada -->
+            <p>Mesa seleccionada: {{ mesaSeleccionada.nombre }}</p>
+          </div>
+
+          <!-- Lista de productos para seleccionar y agregar al pedido con mesa -->
+          <div class="field">
+            <label class="label">Productos:</label>
+            <div class="control">
+              <div class="table-container">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <!-- Encabezados de la tabla -->
+                        <th>Categoria</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Cocina</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Filas para agregar productos -->
+                      <tr v-for="(producto, index) in nuevoPedidoConMesa.productos" :key="index">
+                        <td>
+                          <select v-model="producto.selectedCategoryId" @change="fetchProductsByCategory(producto)" required class="form-control">
+                            <!-- Opciones para seleccionar la categoría del producto -->
+                            <option value="" disabled selected>Seleccione la categoria</option>
+                            <option v-for="category in categories" :value="category.id" :key="category.id">{{ category.Nombre_Categoria }}</option>
+                          </select>
+                        </td>
+                        <td>
+                          <select v-model="producto.id" @change="actualizarTotalConMesa" required class="form-control">
+                            <!-- Opciones para seleccionar el producto -->
+                            <option value="" disabled selected>Seleccione un producto</option>
+                            <option v-for="product in producto.categoryProducts" :value="product.id" :key="product.id">{{ product.nombre }}</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input v-model="producto.cantidad" class="form-control" type="number" placeholder="Cantidad" @input="actualizarTotalConMesa" required />
+                        </td>
+                        <td>
+                          <input type="checkbox" v-model="producto.cocina" />
+                        </td>
+                        <td>
+                          <input v-model="producto.observaciones" class="form-control" type="text" placeholder="Observaciones" />
+                        </td>
+                        <td>
+                          <a class="icon-link" @click="eliminarProductoConMesa(index)">
+                            <i class="fas fa-trash-alt"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón para agregar nuevo producto -->
+          <div class="field">
+            <div class="control">
+              <a class="btn btn-primary btn-sm" @click="agregarProductoConMesa">
+                <i class="fas fa-plus"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Campo para mostrar el total a pagar -->
+          <div class="field">
+            <label class="label">Total a pagar:</label>
+            <div class="control">
+              <input v-model="nuevoPedidoConMesa.total" class="form-control" type="number" disabled />
+            </div>
+          </div>
+
+          <!-- Botones para enviar el formulario o cancelar -->
+          <div class="field">
+            <div class="control">
+              <button type="submit" class="btn btn-secondary">Crear Pedido con Mesa</button>
+              <button type="button" class="btn btn-secondary" @click="cerrarModalConMesa">Cancelar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  
+    <!-- Modal para pedidos sin mesa -->
+    <div v-if="showModalSinMesa" class="modal-backgroundn" @click="cerrarModalSinMesa">
+        <div class="modal-contentn" @click.stop>
+            <h3 class="modal-title">Pedido sin Mesa</h3>
+            <form @submit.prevent="crearPedidoSinMesa">
+
+                <input v-model="nuevoPedidoSinMesa.cliente" class="form-control" type="text"
+                    placeholder="Nombre del cliente" required />
+
+                <div class="field">
+                    <label class="label">Productos:</label>
+                    <div class="control">
+                        <div class="table-container">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Categoria</th>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Observaciones</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(producto, index) in nuevoPedidoSinMesa.productos" :key="index">
+
+                                            <td>
+                                                <select v-model="producto.selectedCategoryId"
+                                                    @change="fetchProductsByCategory(producto)" required
+                                                    class="form-control">
+                                                    <option value="" disabled selected>Seleccione la categoria
+                                                    </option>
+                                                    <option v-for="category in categories" :value="category.id"
+                                                        :key="category.id">
+                                                        {{ category.Nombre_Categoria }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select v-model="producto.id" @change="actualizarTotalConMesa" required
+                                                    class="form-control">
+                                                    <option value="" disabled selected>Seleccione un producto
+                                                    </option>
+                                                    <option v-for="product in producto.categoryProducts"
+                                                        :value="product.id" :key="product.id">
+                                                        {{ product.nombre }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input v-model="producto.cantidad" class="form-control" type="number"
+                                                    placeholder="Cantidad" @input="actualizarTotalSinMesa" required />
+                                            </td>
+                                            <td>
+                                                <input v-model="producto.observaciones" class="form-control" type="text"
+                                                    placeholder="Observaciones" />
+                                            </td>
+                                            <td>
+                                                <a class="icon-link" @click="eliminarProductoSinMesa(index)">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <a class="btn btn-primary btn-sm" @click="agregarProductoSinMesa">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                </div>
+                <label class="label">Total a pagar:</label>
+                <div class="control">
+                    <input v-model="nuevoPedidoSinMesa.total" class="form-control" type="number" disabled />
+                </div>
+
+                <br>
+
+                <div class="control">
+                    <div class="field button-container">
+                        <button type="submit" class="btn btn-secondary">Crear Pedido</button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModalSinMesa">Cancelar</button>
+
+                    </div>
+
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+
+
 </template>
 
 <script>
-import axios from 'axios'
-import Swal from 'sweetalert2'
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   data() {
     return {
       mesas: [],
       productos: [],
-      imagenUrl:
-        'https://img.freepik.com/fotos-premium/mesa-madera-vacia-fondo-interior-borroso-cafeteria-o-restaurante-puede-utilizar-exhibicion-producto_7188-1500.jpg',
+      selectedCategoryId: null,
+      categories: [],
+      categoryProducts: [],
+      imagenUrl: 'https://img.freepik.com/fotos-premium/mesa-madera-vacia-fondo-interior-borroso-cafeteria-o-restaurante-puede-utilizar-exhibicion-producto_7188-1500.jpg',
       showModalSinMesa: false,
       showModalConMesa: false,
+      showModalAdiciones: false,
       nuevoPedidoSinMesa: {
         cliente: '',
         estado: 'Nuevo pedido sin mesa',
         total: 0,
-        productos: []
+        productos: [],
       },
       nuevoPedidoConMesa: {
         mesa_id: null,
         estado: 'Nuevo pedido',
         total: 0,
-        productos: []
-      }
-    }
+        productos: [],
+      },
+      mesaSeleccionada: {},
+      cantidadAdicion: null,
+      cocinaAdicion: false,
+      observacionAdicion: '',
+      productoSeleccionado: null,
+    };
   },
   mounted() {
-    this.getMesas()
-    this.getProductos()
+    this.getMesas();
+    this.getProductos();
   },
   methods: {
     getMesas() {
-      const token = localStorage.getItem('token')
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      const token = localStorage.getItem('token');
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       axios
-        .get('http://127.0.0.1:8000/api/v1/Mesas')
+        .get('/api/v1/Mesas')
         .then((response) => {
           this.mesas = response.data.map((mesa) => ({
             id: mesa.id,
@@ -286,338 +367,502 @@ export default {
             capacidad: mesa.capacidad,
             Estado: mesa.Estado,
             Descripcion: mesa.Descripcion,
-            imagenUrl: this.imagenUrl
-          }))
+            imagenUrl: this.imagenUrl,
+          }));
         })
         .catch((error) => {
-          console.error(error)
-        })
+          console.error(error);
+        });
     },
     getProductos() {
       axios
-        .get('http://127.0.0.1:8000/api/v1/productos')
+        .get('/api/v1/productos')
         .then((response) => {
-          this.productos = response.data
+          this.productos = response.data;
+          const uniqueCategories = [...new Set(this.productos.map((producto) => producto.categoria_id))];
+          axios.get('/api/v1/categorias')
+            .then((response) => {
+              this.categories = response.data.filter((categoria) => uniqueCategories.includes(
+                categoria.id));
+            })
+            .catch((error) => {
+              console.error(error);
+            });
         })
         .catch((error) => {
-          console.error(error)
-        })
+          console.error(error);
+        });
     },
     abrirModalSinMesa() {
-      this.resetNuevoPedidoSinMesa()
-      this.showModalSinMesa = true
+      this.resetNuevoPedidoSinMesa();
+      this.showModalSinMesa = true;
+    },
+    abrirModalAdiciones() {
+      this.showModalAdiciones = true;
+    },
+    cerrarModalAdiciones() {
+      this.showModalAdiciones = false;
     },
     cerrarModalSinMesa() {
-      this.showModalSinMesa = false
-      this.resetNuevoPedidoSinMesa()
+      this.showModalSinMesa = false;
+      this.resetNuevoPedidoSinMesa();
     },
     resetNuevoPedidoSinMesa() {
-      this.nuevoPedidoSinMesa.cliente = ''
-      this.nuevoPedidoSinMesa.total = 0
-      this.nuevoPedidoSinMesa.productos = []
+      this.nuevoPedidoSinMesa.cliente = '';
+      this.nuevoPedidoSinMesa.total = 0;
+      this.nuevoPedidoSinMesa.productos = [];
     },
     agregarProductoSinMesa() {
-      this.nuevoPedidoSinMesa.productos.push({ id: null, cantidad: null, observaciones: '' })
+      this.nuevoPedidoSinMesa.productos.push({
+        id: null,
+        cantidad: null,
+        observaciones: '',
+      });
     },
     eliminarProductoSinMesa(index) {
-      this.nuevoPedidoSinMesa.productos.splice(index, 1)
-      this.actualizarTotalSinMesa()
+      this.nuevoPedidoSinMesa.productos.splice(index, 1);
+      this.actualizarTotalSinMesa();
     },
     actualizarTotalSinMesa() {
-      let total = 0
+      let total = 0;
       for (const producto of this.nuevoPedidoSinMesa.productos) {
-        const productoSeleccionado = this.productos.find((p) => p.id === producto.id)
+        const productoSeleccionado = this.productos.find((p) => p.id === producto.id);
         if (productoSeleccionado) {
-          total += productoSeleccionado.precio * producto.cantidad
+          total += productoSeleccionado.precio * producto.cantidad;
         }
       }
-      this.nuevoPedidoSinMesa.total = total
+      this.nuevoPedidoSinMesa.total = total;
     },
     crearPedidoSinMesa() {
-      const token = localStorage.getItem('token')
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      const token = localStorage.getItem('token');
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       axios
-        .post('http://127.0.0.1:8000/api/v1/pedidos-cocina/store', this.nuevoPedidoSinMesa)
+        .post('/api/v1/pedidos-cocina/store', this.nuevoPedidoSinMesa)
         .then((response) => {
           Swal.fire({
             title: 'Éxito!',
             text: 'Pedido sin mesa creado exitosamente',
-            icon: 'success'
-          })
-          this.cerrarModalSinMesa()
+            icon: 'success',
+            timer: 800,
+            didClose: () => {
+              location.reload()
+            }
+          });
+          this.cerrarModalSinMesa();
         })
         .catch((error) => {
-          let errorMessage = 'Error al realizar la solicitud al servidor'
+          let errorMessage = 'Error al realizar la solicitud al servidor';
           if (error.response) {
-            errorMessage = error.response.data.message || 'Error al crear el pedido sin mesa'
+            errorMessage = error.response.data.message || 'Error al crear el pedido sin mesa';
           } else if (error.request) {
-            errorMessage = 'No se recibió respuesta del servidor'
+            errorMessage = 'No se recibió respuesta del servidor';
+
+
+
+
           }
           Swal.fire({
             title: 'Error!',
             text: errorMessage,
-            icon: 'error'
-          })
-          console.error('Error al crear el pedido sin mesa:', error)
-        })
+            icon: 'error',
+          });
+          console.error('Error al crear el pedido sin mesa:', error);
+        });
     },
-    abrirModalConMesa() {
-      this.resetNuevoPedidoConMesa()
-      this.showModalConMesa = true
+    abrirModalConMesa(mesaId) {
+      this.resetNuevoPedidoConMesa();
+      this.mesaSeleccionada = this.mesas.find((mesa) => mesa.id === mesaId);
+      this.nuevoPedidoConMesa.mesa_id = mesaId;
+      this.showModalConMesa = true;
     },
     cerrarModalConMesa() {
-      this.showModalConMesa = false
-      this.resetNuevoPedidoConMesa()
+      this.showModalConMesa = false;
+      this.resetNuevoPedidoConMesa();
     },
     resetNuevoPedidoConMesa() {
-      this.nuevoPedidoConMesa.mesa_id = null
-      this.nuevoPedidoConMesa.total = 0
-      this.nuevoPedidoConMesa.productos = []
+      this.nuevoPedidoConMesa.mesa_id = null;
+      this.nuevoPedidoConMesa.total = 0;
+      this.nuevoPedidoConMesa.productos = [];
     },
     agregarProductoConMesa() {
-      this.nuevoPedidoConMesa.productos.push({ id: null, cantidad: null, observaciones: '' })
+      this.nuevoPedidoConMesa.productos.push({
+        selectedCategoryId: null,
+        id: null,
+        cantidad: null,
+        observaciones: '',
+        cocina: false, // Establecer el valor inicial a false para que siempre sea booleano
+      });
     },
     eliminarProductoConMesa(index) {
-      this.nuevoPedidoConMesa.productos.splice(index, 1)
-      this.actualizarTotalConMesa()
+      this.nuevoPedidoConMesa.productos.splice(index, 1);
+      this.actualizarTotalConMesa();
     },
+    eliminarFilaAdicion(index) {
+    this.nuevoPedidoConMesa.productos.splice(index, 1);
+  },
     actualizarTotalConMesa() {
-      let total = 0
-      for (const producto of this.nuevoPedidoConMesa.productos) {
-        const productoSeleccionado = this.productos.find((p) => p.id === producto.id)
-        if (productoSeleccionado) {
-          total += productoSeleccionado.precio * producto.cantidad
-        }
-      }
-      this.nuevoPedidoConMesa.total = total
-    },
-    crearPedidoConMesa() {
-      const token = localStorage.getItem('token')
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-
-      axios
-        .post('http://127.0.0.1:8000/api/v1/pedidos-cocina/store', this.nuevoPedidoConMesa)
-        .then((response) => {
-          Swal.fire({
-            title: 'Éxito!',
-            text: 'Pedido con mesa creado exitosamente',
-            icon: 'success'
-          })
-          this.cerrarModalConMesa()
-        })
-        .catch((error) => {
-          let errorMessage = 'Error al realizar la solicitud al servidor'
-          if (error.response) {
-            errorMessage = error.response.data.message || 'Error al crear el pedido con mesa'
-          } else if (error.request) {
-            errorMessage = 'No se recibió respuesta del servidor'
-          }
-          Swal.fire({
-            title: 'Error!',
-            text: errorMessage,
-            icon: 'error'
-          })
-          console.error('Error al crear el pedido con mesa:', error)
-        })
+        let total = 0;
+  for (const producto of this.nuevoPedidoConMesa.productos) {
+    const productoSeleccionado = this.productos.find((p) => p.id === producto.id);
+    if (productoSeleccionado) {
+      total += productoSeleccionado.precio * producto.cantidad;
     }
   }
-}
+  this.nuevoPedidoConMesa.total = total;
+    },
+    crearPedidoConMesa() {
+  // Realizar la solicitud al backend incluyendo el token en los headers
+  const token = localStorage.getItem('token');
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+  axios
+    .post('/api/v1/pedidos-cocina/store', this.nuevoPedidoConMesa) // Eliminamos el filtrado de productos
+    .then((response) => {
+      Swal.fire({
+        title: 'Éxito!',
+        text: 'Pedido con mesa creado exitosamente',
+        icon: 'success',
+        timer: 800,
+      });
+      this.cerrarModalConMesa();
+      window.location.reload();
+    })
+    .catch((error) => {
+      let errorMessage = 'Error al realizar la solicitud al servidor';
+      if (error.response) {
+        errorMessage = error.response.data.message || 'Error al crear el pedido con mesa';
+      } else if (error.request) {
+        errorMessage = 'No se recibió respuesta del servidor';
+      }
+      Swal.fire({
+        title: 'Error!',
+        text: errorMessage,
+        icon: 'error',
+      });
+      console.error('Error al crear el pedido con mesa:', error);
+    });
+},
+
+
+
+
+
+
+
+
+    fetchProductsByCategory(producto) {
+      const selectedCategoryId = producto.selectedCategoryId;
+      if (selectedCategoryId) {
+        const apiUrl = `/api/v1/productos/categoria/${selectedCategoryId}`;
+        axios
+          .get(apiUrl)
+          .then((response) => {
+            producto.categoryProducts = response.data;
+          })
+          .catch((error) => {
+            console.error('Error fetching products:', error);
+          });
+      } else {
+        producto.categoryProducts = [];
+      }
+    },
+
+    agregarAdicion() {
+      const nuevaAdicion = {
+        producto_id: this.productoSeleccionado,
+        cantidad: this.cantidadAdicion,
+        cocina: this.cocinaAdicion,
+        observacion: this.observacionAdicion,
+      };
+      this.nuevoPedidoConMesa.productos.push(nuevaAdicion);
+      this.productoSeleccionado = null;
+      this.cantidadAdicion = null;
+      this.cocinaAdicion = false;
+      this.observacionAdicion = '';
+      $('#adicionesModal').modal('hide');
+    },
+
+    agregarFilaAdicion() {
+      // Agregar una nueva fila vacía a la lista de productos en el modal de adiciones
+      this.nuevoPedidoConMesa.productos.push({
+        selectedCategoryId: null,
+        id: null,
+        cantidad: null,
+        observaciones: '',
+      });
+    },
+  },
+};
 </script>
 
-<style scoped>
-.containers {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-image: url('https://www.wallpapertip.com/wmimgs/12-124086_817988-title-food-burger-french-fries-wallpaper-burger.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  box-sizing: border-box;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+<style>
+/* Estilos generales */
+
+/* Estilos del contenedor de los botones */
+.button-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    /* Alineamos los botones en el centro */
+    margin-top: 20px;
+    /* Agregamos un margen superior para separar los botones del contenido anterior */
 }
+
+/* Ajustamos el tamaño de los botones */
+
+/* .container-fluid {
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #f4eab1, #12b992);
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+} */
 
 .title {
-  font-size: 56px;
-  font-weight: bold;
-  color: white;
-  border-radius: 30px;
-  margin-bottom: 20px;
-  animation: slideInUp 1s ease;
-  -webkit-text-stroke: 2px orangered;
-  color: white;
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    color: #222020;
+    border-radius: 30px;
+    margin-bottom: 20px;
+    animation: slideInUp 1s ease;
+    -webkit-text-stroke: 2px rgb(12, 12, 12);
 }
 
-.flex-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2em;
+/* Estilo para las tarjetas de mesas ocupadas */
+.mesa-ocupada .card {
+    background-color: #f84909d4;
+    /* Color coral suave */
+    color: #fff;
+    /* Texto blanco */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mesa-ocupada .card:hover {
+    background-color: #ff6347;
+    /* Color coral más intenso al pasar el cursor */
+    box-shadow: 0 0 10px rgba(243, 6, 6, 0.3);
+}
+
+/* Estilo para las tarjetas de mesas disponibles */
+.mesa-disponible .card {
+    background-color: #2bd088;
+    /* Un tono suave de verde */
+    color: white;
+}
+
+/* Efecto al pasar el cursor sobre las tarjetas */
+.mesa-disponible .card:hover {
+    background-color: #014421bd;
+    /* Color coral más intenso al pasar el cursor */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.907);
+}
+
+/* Media Query para dispositivos móviles */
+@media (max-width: 768px) {
+    .mesa-item {
+        flex: 0 0 100%;
+        /* Ocupar el ancho completo en dispositivos pequeños */
+        flex: 0 0 calc(33.33% - 10px);
+    }
+}
+
+
+
+
+/* Media Query para dispositivos móviles */
+@media (max-width: 768px) {
+    .mesas-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        /* Alinear las tarjetas una al lado de la otra */
+    }
+
+
+
+
+}
+
+.producto-item {
+    flex: 0 0 calc(50% - 10px);
+    height: 100px;
+    font-size: 14px;
+}
+
+.total-section {
+    font-size: 16px;
+}
+
+.mesas-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    /* Alinear las tarjetas una al lado de la otra */
 }
 
 .card {
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  padding: 2em;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-bottom: 1em;
-  max-width: 300px;
+    font-size: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+    transition: transform 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .card-title {
-  font-size: 1.6em;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 1em;
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1em;
+}
+
+.btn-icon {
+    padding: 8px;
+}
+
+.btn-icon i {
+    font-size: 18px;
+}
+
+.btn-danger {
+    border: none;
 }
 
 .btn-primary,
 .btn-secondary {
-  display: inline-block;
-  padding: 1em 2em;
-  font-size: 1.2em;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  color: #fff;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  outline: none;
-  border: none;
+    display: inline-block;
+
 }
 
-.btn-primary {
-  background-color: #ff6f00;
+/* .btn-primary {
+background-color: #0051ffc5;
 }
 
 .btn-secondary {
-  background-color: #537895;
+background-color: #537895;
+} */
+
+.custom-table {
+    font-size: 14px;
+    /* Tamaño de fuente para el contenido de la tabla */
+    border-collapse: collapse;
+    /* Combina los bordes de las celdas para una apariencia más limpia */
+    width: 100%;
+    /* Ancho de la tabla al 100% del contenedor */
+}
+
+.custom-table th,
+.custom-table td {
+    padding: 20px;
+    /* Espaciado interno de las celdas */
+    text-align: center;
+    /* Alineación del texto en el centro de las celdas */
+    border: 1px solid #ccc;
+    /* Agrega bordes a las celdas para una apariencia definida */
+}
+
+.custom-table th {
+    background-color: #f2f2f2;
+    /* Color de fondo para la fila de encabezados */
+    font-weight: bold;
+    /* Texto en negrita para los encabezados */
 }
 
 .btn-primary:hover,
 .btn-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.modal-background {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: background-color 0.3s ease-in-out;
-  animation: fadeIn 0.3s ease-in-out forwards;
+/* Estilos para el modal */
+.modal-backgroundn {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(25, 25, 25, 0.299);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.modal-content {
-  background-color: #f0f4f8;
-  padding: 2em;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  width: 100%;
-  animation: scaleIn 0.3s ease-in-out forwards;
-  max-height: 90vh;
-  overflow-y: auto;
+.modal-contentn {
+    max-width: 600px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    max-height: 70vh;
 }
 
 .modal-title {
-  font-size: 2em;
-  color: #537895;
-  margin-bottom: 1em;
-  text-align: center;
-  font-weight: 600;
+    font-size: 1.8em;
+    color: #537895;
+    margin-bottom: 1em;
+    text-align: center;
+    font-weight: 600;
+    padding: 1em 0;
+    border-bottom: 1px solid #ccc;
 }
 
-.form {
-  margin-top: 2em;
+.modal-title {
+    font-size: 1.6em;
+    /* Tamaño de fuente más pequeño para el título del modal */
 }
 
-.form .field {
-  margin-bottom: 1.5em;
-}
 
 .form .field label {
-  font-weight: bold;
-  color: #333;
-}
-
-.form .field .table {
-  width: 100%;
-  margin-bottom: 1em;
-  border-collapse: collapse;
+    font-size: 1em;
+    /* Tamaño de fuente más pequeño para las etiquetas del formulario */
 }
 
 .form .field .table th,
 .form .field .table td {
-  padding: 0.5em;
-  text-align: center;
-  border-bottom: 1px solid #ccc;
-}
-
-.form .field .table th {
-  font-weight: bold;
+    padding: 0.3em;
+    /* Espaciado interno más pequeño en el formulario */
 }
 
 .form .field .table td select,
 .form .field .table td input {
-  width: 100%;
-  padding: 0.5em;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  transition: border-color 0.3s ease;
-}
-
-.form .field .table td select:focus,
-.form .field .table td input:focus {
-  outline: none;
-  border-color: #537895;
+    font-size: 14px;
+    /* Tamaño de fuente más grande para los inputs y select del formulario */
 }
 
 .form .field .btn-primary,
 .form .field .btn-secondary {
-  margin-top: 1em;
+    font-size: 1em;
+    /* Tamaño de fuente más pequeño para los botones del formulario */
 }
 
+
 @keyframes fadeIn {
-  from {
-    background-color: rgba(0, 0, 0, 0);
-  }
-  to {
-    background-color: rgba(0, 0, 0, 0.8);
-  }
+    from {
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    to {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 </style>

@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Pedido\Pedido;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -23,10 +24,12 @@ class NuevoPedidoEvent implements ShouldBroadcast
      * @param  array  $mesa
      * @return void
      */
-    public function __construct(array $pedido)
+    public function __construct(Pedido $pedido)
     {
         $this->pedido = $pedido;
     }
+
+
 
     /**
      * Get the channels the event should broadcast on.

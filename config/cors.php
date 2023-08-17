@@ -1,7 +1,6 @@
 <?php
 
-return [
-
+return  [
     /*
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
@@ -19,7 +18,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'https://webes.elasticserver.co/', // Reemplaza con la URL de tu frontend de Vue.js
+    ],
 
     'allowed_origins_patterns' => [],
 
@@ -30,9 +31,5 @@ return [
     'max_age' => 0,
 
     'supports_credentials' => false,
-
-    'allowed_origins' => [
-        'http://192.168.209.143:8080', // Reemplaza con la URL de tu frontend de Vue.js
-    ],
-
 ];
+

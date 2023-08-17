@@ -1,6 +1,6 @@
 <template>
-  <div class="container-fluid vh-100" style="overflow-y: auto; max-height: 100vh">
-    <h1 class="title">PEDIDOS EN LA COCINA</h1>
+  <div class="container-fluid" style="background-image: url('https://www.arcosdorados.com/wp-content/uploads/2021/07/Grand-Tasty-1-e1627506211463.jpg'); background-size: cover; background-repeat: no-repeat;">
+    <h1 class="titles">PEDIDOS EN LA COCINA</h1>
 
     <div v-if="cargando" class="loading-message">Cargando...</div>
 
@@ -13,37 +13,36 @@
           v-for="(pedido, index) in pedidos.slice().reverse()"
           :key="pedido.id"
         >
-          <div class="card">
-            <h2 class="card-title">Pedido #{{ pedido.id }}</h2>
-
-            <p>Mesa: {{ pedido.mesa ? pedido.mesa.nombre : 'Pedido para llevar' }}</p>
-
-            <p v-if="!pedido.mesa">Cliente: {{ pedido.cliente }}</p>
-
-            <p :class="{ 'status-new': pedido.estado === 'Nuevo pedido' }">
-              Estado: {{ pedido.estado }}
-            </p>
-
-            <p>Total: {{ formatCurrency(pedido.total) }}</p>
-
-            <p>Fecha: {{ pedido.created_at }}</p>
-
-            <div v-if="pedido.productos">
-              <h3>Productos:</h3>
-              <ul>
-                <li v-for="producto in pedido.productos" :key="producto.id">
-                  {{ producto.nombre }} (Cantidad: {{ producto.pivot.cantidad }})
-                  <br />
-                  <template v-if="producto.pivot.observacion">
-                    Observaciones: {{ producto.pivot.observacion }}
-                  </template>
-                </li>
-              </ul>
+          <div :class="['card', {'new-order': pedido.estado === 'Nuevo pedido' && pedido.id === pedidoNuevoId}]">
+            <div class="card-header">
+              <h2 class="card-title">Pedido #{{ pedido.id }}</h2>
+              <p class="card-subtitle">
+                {{ pedido.mesa ? 'Mesa: ' + pedido.mesa.nombre : 'Pedido para llevar' }}
+              </p>
             </div>
 
-            <button class="btn btn-primary" @click="liberarPedido(pedido.id)">
-              <i class="fa-solid fa-edit"></i> Procesar
-            </button>
+            <div class="card-body">
+              <p v-if="!pedido.mesa" class="card-text">Cliente: {{ pedido.cliente }}</p>
+              <p :class="{'status-new': pedido.estado === 'Nuevo pedido', 'status-completed': pedido.estado === 'Completado'}">Estado: {{ pedido.estado }}</p>
+
+              <div v-if="pedido.productos">
+                <h3>Productos:</h3>
+                <ul>
+                  <li v-for="producto in getProductosCocina(pedido)" :key="producto.id">
+                    {{ producto.nombre }} (Cantidad: {{ producto.pivot.cantidad ?? 'N/A' }})
+                    <br />
+                    <template v-if="producto.pivot.observacion">
+                      Observaciones: {{ producto.pivot.observacion }}
+                    </template>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Agregamos el botón "Procesar" -->
+              <button class="btn btn-primary" @click="liberarPedido(pedido.id)">
+                <i class="fa-solid fa-edit"></i> Procesar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -61,7 +60,8 @@ export default {
     return {
       cargando: true,
       pedidos: [],
-      reproduciendoSonido: false
+      reproduciendoSonido: false,
+      pedidoNuevoId: null // Variable para guardar el ID del pedido nuevo
     }
   },
   mounted() {
@@ -71,9 +71,8 @@ export default {
   methods: {
     cargarPedidos() {
       console.log('Iniciando la carga de pedidos...')
-
       axios
-        .get('http://127.0.0.1:8000/api/v1/pedidos-cocina', {
+        .get('api/v1/pedidos-cocina', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -90,7 +89,6 @@ export default {
     },
     escucharEventos() {
       console.log('Iniciando escucha de eventos...')
-
       window.Echo.channel('pedidos').listen('NuevoPedidoEvent', (data) => {
         console.log('Evento NuevoPedidoEvent recibido:', data)
         this.pedidos.push(data.pedido)
@@ -98,7 +96,17 @@ export default {
         if (!this.reproduciendoSonido) {
           this.reproducirSonidoNuevoPedido()
         }
+
+        this.pedidoNuevoId = data.pedido.id // Guardamos el ID del pedido nuevo
+
+        // Quitamos la clase "new-order" después de 5 segundos para deshacer el efecto
+        setTimeout(() => {
+          this.pedidoNuevoId = null
+        }, 8000)
       })
+    },
+    getProductosCocina(pedido) {
+      return pedido.productos.filter(producto => producto.pivot.cocina)
     },
     reproducirSonidoNuevoPedido() {
       console.log('Intentando reproducir el sonido...')
@@ -120,9 +128,7 @@ export default {
     liberarPedido(pedidoId) {
       axios
         .put(
-          `http://127.0.0.1:8000/api/v1/liberar-pedido/${pedidoId}`,
-          {},
-          {
+          `/api/v1/liberar-pedido/${pedidoId}`, {}, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -160,111 +166,115 @@ export default {
     }
   }
 }
+
 </script>
 
-<style scoped>
-.container-fluid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-image: url('https://www.wallpapertip.com/wmimgs/12-124086_817988-title-food-burger-french-fries-wallpaper-burger.jpg');
-  background-repeat: repeat;
-  background-size: cover;
-  background-position: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding-bottom: 20px;
+  
+  <style>
+  /* Estilos personalizados para las tarjetas */
+  .card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .card-header {
+    padding: 16px;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .card-title {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  .card-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+  }
+  
+  .card-body {
+    padding: 16px;
+  }
+  
+  .card-text {
+    margin-bottom: 8px;
+  }
+  
+ 
+  .status-new {
+    color: #007bff;
+    font-weight: bold;
+  }
+  
+  .status-completed {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .btn {
+    margin-top: 16px;
+  }
+  
+  /* Personaliza el scroll del contenedor */
+  .scrollable-container {
+    overflow-y: auto;
+    max-height: 80vh;
+  }
+  
+  /* Estilos para el mensaje de carga y mensaje vacío */
+  .loading-message,
+  .empty-message {
+    padding: 16px;
+    text-align: center;
+    font-size: 20px;
+  }
+  
+  .loading-message {
+    color: #007bff;
+  }
+  
+  .empty-message {
+    color: #6c757d;
+  }
+  
+  /* Estilos para el título */
+  .titles {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 16px;
+    color: white;
+  }
+  
+  /* Estilos para resaltar el pedido nuevo */
+  /* Estilos para resaltar el pedido nuevo */
+.new-order {
+  border: 2px solid #ffc107; /* Borde amarillo */
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.4); /* Sombra amarilla */
+  animation: titileo 1s infinite; /* Aplica la animación "titileo" */
+}
+.empty-message{
+  font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 16px;
+    color: white;
 }
 
-.title {
-  font-size: 56px;
-  font-weight: bold;
-  color: white;
-  border-radius: 30px;
-  margin-bottom: 20px;
-  animation: slideInUp 1s ease;
-  -webkit-text-stroke: 2px orangered;
-  color: white;
+/* Animación de titileo */
+@keyframes titileo {
+  0%, 100% {
+    transform: scale(1); /* Tamaño normal */
+  }
+  50% {
+    transform: scale(1.1); /* Aumenta el tamaño */
+    border-color: rgb(52, 47, 196); /* Cambia el color del borde a rojo */
+    border-width: 4px; /* Aumenta el ancho del borde a 4px */
+    box-shadow: 0 8px 9px rgba(34, 0, 255, 0.4); /* Cambia la sombra a roja */
+  }
 }
-
-.loading-message,
-.empty-message {
-  color: #fff;
-  font-size: 24px;
-  margin-top: 50px;
-}
-
-.scrollable-container {
-  overflow-y: auto;
-  max-height: calc(100vh - 100px); /* Ajusta según sea necesario */
-}
-
-.row {
-  margin-top: 5px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: stretch; /* Añade este estilo */
-}
-
-.col-lg-4 {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1; /* Añade este estilo */
-}
-
-.card {
-  background: linear-gradient(135deg, #f0f4f8, #d9dde8);
-  border-radius: 30px;
-  padding: 20px;
-  margin: 1em;
-  box-shadow: 0px 10px 20px -5px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in;
-  cursor: pointer;
-  text-align: center;
-  flex-grow: 1;
-  min-height: 0;
-}
-
-.card:hover {
-  box-shadow: 0px 20px 30px -5px rgba(0, 0, 0, 0.2);
-  transform: scale(1.05);
-}
-
-.card-title {
-  color: #09203f;
-  font-size: 1.4em;
-  margin-bottom: 0.5em;
-}
-
-.status-new {
-  color: white;
-  background-color: #537895;
-  display: inline-block;
-  font-size: 0.8em;
-  padding: 2px 6px;
-  border-radius: 15px;
-}
-
-.scrollable-container {
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.scrollable-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scrollable-container::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-.scrollable-container::-webkit-scrollbar-thumb {
-  background-color: transparent;
-}
-
-.btn-primary {
-  background-color: #ff6f00;
-}
-</style>
+  </style>
+  

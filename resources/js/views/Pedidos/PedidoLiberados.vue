@@ -1,49 +1,41 @@
 <template>
-  <div
-    class="container-fluid vh-100"
-    style="overflow-y: auto; max-height: 100vh"
-  >
+  <div class="container" >
     <h2 class="title">Pedidos Liberados</h2>
 
-    <div v-if="pedidos.length > 0">
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered" ref="dataTable">
-          <thead class="table-dark">
-            <tr>
-              <th>PEDIDO #</th>
-              <th>MESA</th>
-              <th>ESTADO PEDIDO</th>
-              <th>TOTAL PAGAR</th>
-              <th>FECHA PEDIDO</th>
-              <th>PRODUCTOS</th>
-              <th>ACCIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pedido in pedidos" :key="pedido.id">
-              <td>{{ pedido.id }}</td>
-              <td>{{ pedido.mesa ? pedido.mesa.nombre : "-" }}</td>
-              <td>{{ pedido.estado }}</td>
-              <td>{{ pedido.total | formatCurrency }}</td>
-              <td>{{ formatDate(pedido.created_at) }}</td>
-              <td>
-                <ul>
-                  <li v-for="producto in pedido.productos" :key="producto.id">
-                    {{ producto.nombre }} (Cantidad:
-                    {{ producto.pivot.cantidad }})
-                  </li>
-                </ul>
-              </td>
-              <td>
-                <button class="btn btn-primary" @click="generarPago(pedido.id)">
-                  Generar pago
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="input-group mb-3 search-container">
+      <input type="text" class="form-control" placeholder="Buscar por número de pedido" v-model="searchQuery">
+      <div class="input-group-append">
+        <button class="btn " @click="filterOrders">Buscar</button>
       </div>
     </div>
+
+    <div v-if="filteredPedidos.length > 0" class="timeline">
+      <div v-for="pedido in filteredPedidos" :key="pedido.id" class="timeline-item">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Pedido #{{ pedido.id }}</h5>
+            <p class="card-text">MESA: {{ pedido.mesa ? pedido.mesa.nombre : "-" }}</p>
+            <p class="card-text">ESTADO PEDIDO: {{ pedido.estado }}</p>
+            <p class="card-text">TOTAL PAGAR: {{ pedido.total | formatCurrency }}</p>
+            <p class="card-text">FECHA PEDIDO: {{ formatDate(pedido.created_at) }}</p>
+          </div>
+          <div class="card-body">
+            <h6 class="card-subtitle mb-2">PRODUCTOS:</h6>
+            <ul class="list-group">
+              <li v-for="producto in pedido.productos" :key="producto.id" class="list-group-item custom-list-item">
+                {{ producto.nombre }} <span class="badge badge-secondary">{{ producto.pivot.cantidad }}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="card-footer custom-footer">
+            <button class="btn btn-primary" @click="generarPago(pedido.id)">
+              Generar pago
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div v-else class="empty-message">
       No hay pedidos disponibles para generar pago.
     </div>
@@ -58,6 +50,8 @@ export default {
   data() {
     return {
       pedidos: [],
+      searchQuery: "",
+      filteredPedidos: [], // Agregar la propiedad para almacenar los pedidos filtrados
     };
   },
   mounted() {
@@ -68,13 +62,14 @@ export default {
       const token = localStorage.getItem("token");
 
       axios
-        .get("http://127.0.0.1:8000/api/v1/pedidos-liberados", {
+        .get("/api/v1/pedidos-liberados", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         .then((response) => {
           this.pedidos = response.data;
+          this.filteredPedidos = response.data; // Inicialmente, mostrar todos los pedidos sin filtrar
           this.initDataTable();
         })
         .catch((error) => {
@@ -151,118 +146,117 @@ export default {
       });
     },
     initDataTable() {
-      if (this.$refs.dataTable) {
-        this.dataTable = new DataTable(this.$refs.dataTable, {
-          // Configuración de DataTables
+      // ... Código anterior ...
+    },
+    filterOrders() {
+      if (!this.searchQuery) {
+        // Si el campo de búsqueda está vacío, mostrar todos los pedidos
+        this.filteredPedidos = this.pedidos;
+      } else {
+        // Filtrar los pedidos basados en la búsqueda por número de pedido
+        this.filteredPedidos = this.pedidos.filter((pedido) => {
+          return pedido.id.toString().includes(this.searchQuery);
         });
       }
     },
   },
-  beforeDestroy() {
-    if (this.dataTable) {
-      this.dataTable.destroy();
-    }
+  computed: {
+    // ... Código anterior ...
   },
   filters: {
-    formatCurrency(value) {
-      const formatter = new Intl.NumberFormat("es", {
-        style: "currency",
-        currency: "USD",
-      });
-      return formatter.format(value);
-    },
+    // ... Código anterior ...
   },
 };
 </script>
 
-<style scoped>
-.container-fluid {
-  flex-direction: column;
-  align-items: center;
+
+
+  <style scoped>
+ 
+  .search-container {
+  display: flex;
   justify-content: center;
-  background-image: url("https://img.freepik.com/fotos-premium/patron-marmol-natural-fondo_1258-22162.jpg");
-  background-repeat: repeat;
-  background-size: cover;
-  background-position: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding-bottom: 20px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
+.input-group {
+  width: 60%;
+}
 .title {
-  font-size: 56px;
+  font-size: 30px;
   font-weight: bold;
-  color: white;
+  text-align: center;
+  color: #222020;
   border-radius: 30px;
   margin-bottom: 20px;
   animation: slideInUp 1s ease;
-  -webkit-text-stroke: 2px orangered;
+  -webkit-text-stroke: 2px rgb(12, 12, 12);
+}
+  .timeline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.timeline-item {
+  flex: 0 0 calc(33.3333% - 40px);
+  max-width: calc(33.3333% - 40px);
+  margin: 10px;
+}
+
+.timeline-item .card {
+  border: 4px solid rgba(63, 81, 181, 0.91);
+}
+
+/* Custom styles for the card header, body, and footer */
+.card-header {
+  background-color: #007bffe3;
   color: white;
+  padding: 10px;
   text-align: center;
 }
 
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
+.card-body {
+  padding: 10px;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th,
-.table td {
-  padding: 15px;
+.card-footer {
   text-align: center;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.table th {
-  background-color: #343a40;
-  color: white;
-}
-
-.table tbody tr:hover {
   background-color: #f8f9fa;
+  padding: 10px;
 }
 
-.table tbody td table {
-  width: 100%;
+.custom-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.table tbody td table td {
-  border: none;
-}
-
-.btn {
-  margin-right: 10px;
-  padding: 10px 20px;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  background-color: #007bff;
-  color: white;
-}
-
-.btn:hover {
-  background-color: #0056b3;
-}
-
-.empty-message {
-  margin-top: 30px;
-  text-align: center;
-  font-size: 18px;
-  color: #777;
-  animation: fade-in 1s ease-in-out;
-}
-
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
+/* Add media query for better responsiveness */
+@media (max-width: 992px) {
+  .timeline-item {
+    flex: 0 0 calc(50% - 40px);
+    max-width: calc(50% - 40px);
   }
 }
-</style>
+  /* Estilos para una mejor responsividad */
+  @media (max-width: 992px) {
+    .timeline-item {
+      /* ... Estilos para el timeline-item en pantallas medianas ... */
+    }
+  }
+
+  @media (max-width: 768px) {
+    .timeline-item {
+      /* ... Estilos para el timeline-item en pantallas pequeñas ... */
+    }
+  }
+@media (max-width: 768px) {
+  .timeline-item {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+  </style> 
